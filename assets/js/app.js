@@ -20,7 +20,6 @@ function init() {
     light.position = camera.position;
     scene.add(light);
 
-
     renderer = new THREE.WebGLRenderer({canvas: visualizer, antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 10);
@@ -28,6 +27,7 @@ function init() {
     controls = new THREE.OrbitControls( camera, renderer.domElement );
 
     initAvatar();
+    initLandscape();
     //document.addEventListener('mousemove', onDocumentMouseMove, false);
 }
 
@@ -49,13 +49,14 @@ function onDocumentMouseMove(event) {
 */
 
 //Avatar
- 
 var avatarLegsArr = [];
 var avatarHead;
 var avatarArmsArr = [];
 var avatarLegs;
 var avatar = [];
-var legRotationValue;
+var avatarLeftRotationValue = -0.009;
+var avatarRightRotationValue = 0.009;
+var landscapeVisualizer;
 
 
 var initAvatar = function() {
@@ -78,10 +79,10 @@ var initAvatarLegs = function() {
         scene.add(legVisualizer);
     }
 
-    avatarLegsArr[0].position.x = 15;
-    avatarLegsArr[1].position.x = -15;
-    avatarLegsArr[0].position.y = avatarLegsArr[1].position.y = -15;
-    avatarLegsArr[1].rotation.x = 3.7;
+    avatarLegsArr[0].position.x = 5;
+    avatarLegsArr[1].position.x = -5;
+    avatarLegsArr[0].position.y = avatarLegsArr[1].position.y = -20;
+    avatarLegsArr[1].rotation.x = avatarLegsArr[0].rotation.x = 3.15;
 }
 
 var initAvatarHead = function() {
@@ -99,6 +100,7 @@ var initAvatarArms = function() {
 
     for(var i = 0; i < 2; i++) {
         var armsGeometry = new THREE.BoxGeometry(7, 7, 30);
+        armsGeometry.applyMatrix(new THREE.Matrix4().makeTranslation( 0, 0, 15 ))
         var armsMaterial = new THREE.MeshBasicMaterial({wireframe: true});
         var armsVisualizer = new THREE.Mesh(armsGeometry, armsMaterial);
 
@@ -109,8 +111,10 @@ var initAvatarArms = function() {
 
     avatarArmsArr[0].position.x = 13;
     avatarArmsArr[1].position.x = -13;
-    avatarArmsArr[0].position.y = avatarArmsArr[1].position.y = 10;
-    avatarArmsArr[0].position.z = avatarArmsArr[1].position.z = 10;
+    avatarArmsArr[0].position.y = avatarArmsArr[1].position.y = 15;
+    avatarArmsArr[0].position.z = avatarArmsArr[1].position.z = 0;
+    avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 5;
+    avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 1.60;
 
 }
 
@@ -126,28 +130,91 @@ var initAvatarBody = function () {
 
 
 var avatarAnimation = function() {
-
-    if(avatarLegsArr[1].rotation.x >= 3.6) {
-        legRotationValue = -0.05;
-    } else if(avatarLegsArr[1].rotation.x <= 2.6) {
-        legRotationValue = 0.05;
+    if(avatarLegsArr[1].rotation.x === 3.6989999999999936) {
+        avatarLeftRotationValue  = -0.009;
+    } else if(avatarLegsArr[1].rotation.x === 2.5650000000000066) {
+        avatarLeftRotationValue  = 0.009;
     }
 
-    avatarLegsArr[1].rotation.x += legRotationValue;
+    if(avatarLegsArr[0].rotation.x === 3.6989999999999936) {
+        avatarRightRotationValue = -0.009;
+    } else if(avatarLegsArr[0].rotation.x === 2.5650000000000066) {
+        avatarRightRotationValue = 0.009;
+    }
+
+    avatarLegsArr[1].rotation.x += avatarLeftRotationValue;
+    avatarLegsArr[0].rotation.x += avatarRightRotationValue;
+    avatarArmsArr[0].rotation.x += avatarLeftRotationValue;
+    avatarArmsArr[1].rotation.x += avatarRightRotationValue;
+}
+
+var avatarArmsAnimation = function() { 
+    if(avatarArmsArr[1].rotation.x === 3.6989999999999936) {
+        leftLegRotationValue = -0.009;
+    } else if(avatarArmsArr[1].rotation.x === 2.5650000000000066) {
+        leftLegRotationValue = 0.009;
+    }
+
+    if(avatarArmsArr[0].rotation.x === 3.6989999999999936) {
+        rightLegRotationValue = -0.009;
+    } else if(avatarArmsArr[0].rotation.x === 2.5650000000000066) {
+        rightLegRotationValue = 0.009;
+    }
+    console.log(avatarLegsArr[1].rotation.x)
+    avatarLegsArr[1].rotation.x += leftLegRotationValue;
+    avatarLegsArr[0].rotation.x += rightLegRotationValue;
+
+}
+
+//Landscape
+var initLandscape = function() {
+    var landscapeometry = new THREE.BoxGeometry(1000, 1, 1000);
+    var landscapMaterial = new THREE.MeshBasicMaterial({wireframe: true});
+    landscapeVisualizer = new THREE.Mesh(landscapeometry, landscapMaterial);
+
+    landscapeVisualizer.position.y = -50;
+
+    scene.add(landscapeVisualizer);
 }
 
 //Controls
-
-//var canvas = document.getElementById("visualizer");
 document.addEventListener( "keydown", doKeyDown, true);
+document.addEventListener( "keyup", doKeyUp, true);
 
 function doKeyDown(e) {
-    if(e.keyCode == "87") {
-        for(i in avatar) {
-            avatarAnimation();
-            //avatar[i].position.x += 1;
+
+    for(i in avatar) {
+        if(e.keyCode == "87") {
+            if(avatar[i].position.z > -500) {
+                avatarAnimation();
+                avatar[i].position.z += -4;
+            }
         }
+        if(e.keyCode == "83") {
+            if(avatar[i].position.z < 500) {
+                avatarAnimation();
+                avatar[i].position.z += 4;
+            }
+        }
+
+        if(e.keyCode == "68") {
+            if(avatar[i].position.x < 500) {
+                avatarAnimation();
+                avatar[i].position.x += 4;
+            }
+        }
+        if(e.keyCode == "65") {
+            if(avatar[i].position.x > -500) { 
+                avatarAnimation();
+                avatar[i].position.x -= 4;
+            }
+        }  
     }
+}
+
+function doKeyUp(e) {
+    avatarLegsArr[1].rotation.x = avatarLegsArr[0].rotation.x = 3.15;
+    avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 1.60;
 }
 
 init();
