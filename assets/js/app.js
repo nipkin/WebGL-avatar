@@ -50,9 +50,7 @@ function onDocumentMouseMove(event) {
 
 //Avatar
 var avatarLegsArr = [];
-var avatarHead;
 var avatarArmsArr = [];
-var avatarLegs;
 var avatar = [];
 var avatarLeftRotationValue = -0.009;
 var avatarRightRotationValue = 0.009;
@@ -89,6 +87,7 @@ var initAvatarHead = function() {
     var headGeometry = new THREE.BoxGeometry(10, 10, 10);
     var headMaterial = new THREE.MeshBasicMaterial({wireframe: true});
     var headVisualizer = new THREE.Mesh(headGeometry, headMaterial);
+    headVisualizer.add(camera);
 
     avatar.push(headVisualizer);
     scene.add(headVisualizer);
@@ -208,8 +207,12 @@ function doKeyDown(e) {
                 avatarAnimation();
                 avatar[i].position.x -= 4;
             }
-        }  
+        }
     }
+
+    if(e.keyCode == "32") {
+      
+    }  
 }
 
 function doKeyUp(e) {
@@ -219,3 +222,6 @@ function doKeyUp(e) {
 
 init();
 render();
+
+
+//if(avatar[0].position.y < -5 && avatar[1].position.y < -5 && avatar[2].position.y < 40 && avatar[3].position.y < 30 && avatar[4].position.y < 30 && avatar[5].position.y < 15){}
