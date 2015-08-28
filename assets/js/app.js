@@ -5,6 +5,7 @@ var controls;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var visualizer = document.getElementById("visualizer");
+var keyboard;
 
 function init() {
 
@@ -25,19 +26,11 @@ function init() {
     renderer.setClearColor(0x000000, 10);
 
     controls = new THREE.OrbitControls( camera, renderer.domElement );
+    keyboard = new THREEx.KeyboardState( renderer.domElement);
 
     initAvatar();
     initLandscape();
     //document.addEventListener('mousemove', onDocumentMouseMove, false);
-}
-
-function render() {
-    
-    requestAnimationFrame(render);
-    //camera.position.x += ( - mouseX - camera.position.x ) * .20;
-    //camera.position.y += ( mouseY - camera.position.y ) * .20;
-    camera.lookAt(scene.position);
-    renderer.render(scene, camera);
 }
 
 /*
@@ -177,6 +170,67 @@ var initLandscape = function() {
 }
 
 //Controls
+var updateFcts  = [];
+    renderer.domElement.setAttribute("tabIndex", "0");
+    renderer.domElement.focus();
+    
+    updateFcts.push(function(delta, now){
+        if( keyboard.pressed('left') ){
+            avatar[i].rotation.y -= 1 * delta;           
+        }else if( keyboard.pressed('right') ){
+            avatar[i].rotation.y += 1 * delta;
+        }
+        if( keyboard.pressed('down') ){
+            avatar[i].rotation.x += 1 * delta;       
+        }else if( keyboard.pressed('up') ){
+            avatar[i].rotation.x -= 1 * delta;       
+        }
+    })
+
+    // only on keydown
+   /* keyboard.domElement.addEventListener('keydown', function(event){
+        if( keyboard.eventMatches(event, 'w') ) mesh.scale.y    /= 2
+        if( keyboard.eventMatches(event, 's') ) mesh.scale.y    *= 2
+    })
+    // only on keyup
+    keyboard.domElement.addEventListener('keyup', function(event){
+        if( keyboard.eventMatches(event, 'a') ) mesh.scale.x    *= 2
+        if( keyboard.eventMatches(event, 'd') ) mesh.scale.x    /= 2
+    })*/
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //      render the scene                        //
+    //////////////////////////////////////////////////////////////////////////////////
+
+/*
+    function render() {
+    
+    requestAnimationFrame(render);
+    //camera.position.x += ( - mouseX - camera.position.x ) * .20;
+    //camera.position.y += ( mouseY - camera.position.y ) * .20;
+    camera.lookAt(scene.position);
+    renderer.render(scene, camera);
+}*/
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //      loop runner                         //
+    //////////////////////////////////////////////////////////////////////////////////
+    var lastTimeMsec= null
+    requestAnimationFrame(function animate(nowMsec){
+        // keep looping
+        requestAnimationFrame( animate );
+        // measure time
+        lastTimeMsec    = lastTimeMsec || nowMsec-1000/60
+        var deltaMsec   = Math.min(200, nowMsec - lastTimeMsec)
+        lastTimeMsec    = nowMsec
+        // call each update function
+        updateFcts.forEach(function(updateFn){
+            updateFn(deltaMsec/1000, nowMsec/1000)
+        })
+    })
+
+/*
 document.addEventListener( "keydown", doKeyDown, true);
 document.addEventListener( "keyup", doKeyUp, true);
 
@@ -219,9 +273,13 @@ function doKeyUp(e) {
     avatarLegsArr[1].rotation.x = avatarLegsArr[0].rotation.x = 3.15;
     avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 1.60;
 }
+*/
 
 init();
-render();
+    updateFcts.push(function(){
+        renderer.render( scene, camera );       
+    })
+//render();
 
 
 //if(avatar[0].position.y < -5 && avatar[1].position.y < -5 && avatar[2].position.y < 40 && avatar[3].position.y < 30 && avatar[4].position.y < 30 && avatar[5].position.y < 15){}
