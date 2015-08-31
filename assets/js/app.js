@@ -27,6 +27,8 @@ function init() {
 
     controls = new THREE.OrbitControls( camera, renderer.domElement );
     keyboard = new THREEx.KeyboardState( renderer.domElement);
+    renderer.domElement.setAttribute("tabIndex", "0");
+    renderer.domElement.focus();
 
     initAvatar();
     initLandscape();
@@ -171,19 +173,18 @@ var initLandscape = function() {
 
 //Controls
 var updateFcts  = [];
-    renderer.domElement.setAttribute("tabIndex", "0");
-    renderer.domElement.focus();
-    
     updateFcts.push(function(delta, now){
+        for(i in avatar) {
         if( keyboard.pressed('left') ){
-            avatar[i].rotation.y -= 1 * delta;           
+            avatar[i].rotation.y += 1;           
         }else if( keyboard.pressed('right') ){
             avatar[i].rotation.y += 1 * delta;
         }
         if( keyboard.pressed('down') ){
             avatar[i].rotation.x += 1 * delta;       
         }else if( keyboard.pressed('up') ){
-            avatar[i].rotation.x -= 1 * delta;       
+            avatar[i].position.z -= 1;       
+        }
         }
     })
 
