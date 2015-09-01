@@ -1,6 +1,5 @@
 var camera, scene, renderer;
 var geometry, material, particle, line;
-//var mouseX = 0, mouseY = 0;
 var controls;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
@@ -32,21 +31,16 @@ function init() {
 
     initAvatar();
     initLandscape();
-    //document.addEventListener('mousemove', onDocumentMouseMove, false);
 }
 
-/*
-function onDocumentMouseMove(event) {
-
-    mouseX = ( event.clientX - windowHalfX ) / 2;
-    mouseY = ( event.clientY - windowHalfY ) / 2;
+function render() {
+    requestAnimationFrame(render);
+    avatarAnimation();
+    renderer.render(scene, camera);
 }
-*/
 
 //Avatar
-var avatarLegsArr = [];
-var avatarArmsArr = [];
-var avatar = [];
+var avatar = new Object();
 var avatarLeftRotationValue = -0.009;
 var avatarRightRotationValue = 0.009;
 var landscapeVisualizer;
@@ -63,19 +57,24 @@ var initAvatarLegs = function() {
 
     for(var i = 0; i < 2; i++) {
         var legGeometry = new THREE.BoxGeometry(10, 30, 10);
-        legGeometry.applyMatrix(new THREE.Matrix4().makeTranslation( 0, 30/2, 0 ))
+        legGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, -35, 0 ));
         var legMaterial = new THREE.MeshBasicMaterial({wireframe: true});
         var legVisualizer = new THREE.Mesh(legGeometry, legMaterial);
 
-        avatarLegsArr.push(legVisualizer);
-        avatar.push(legVisualizer);
+        switch(i) {
+            case i = 0:
+                avatar.leftLeg = legVisualizer;
+                break;
+            case i = 1:
+                avatar.rightLeg = legVisualizer;
+        }
+
         scene.add(legVisualizer);
     }
 
-    avatarLegsArr[0].position.x = 5;
-    avatarLegsArr[1].position.x = -5;
-    avatarLegsArr[0].position.y = avatarLegsArr[1].position.y = -20;
-    avatarLegsArr[1].rotation.x = avatarLegsArr[0].rotation.x = 3.15;
+    avatar.leftLeg.position.x = 5;
+    avatar.rightLeg.position.x = -5;
+    //avatar.leftLeg.position.y = avatar.rightLeg.position.y = -50;
 }
 
 var initAvatarHead = function() {
@@ -84,31 +83,37 @@ var initAvatarHead = function() {
     var headVisualizer = new THREE.Mesh(headGeometry, headMaterial);
     headVisualizer.add(camera);
 
-    avatar.push(headVisualizer);
+    avatar.head = headVisualizer;
     scene.add(headVisualizer);
 
-    headVisualizer.position.y = 25;
+    avatar.head.position.y = 25;
 }
 
 var initAvatarArms = function() {
 
     for(var i = 0; i < 2; i++) {
-        var armsGeometry = new THREE.BoxGeometry(7, 7, 30);
-        armsGeometry.applyMatrix(new THREE.Matrix4().makeTranslation( 0, 0, 15 ))
+        var armsGeometry = new THREE.BoxGeometry(7, 30, 7);
+        armsGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 15, 0));
         var armsMaterial = new THREE.MeshBasicMaterial({wireframe: true});
-        var armsVisualizer = new THREE.Mesh(armsGeometry, armsMaterial);
+        var armVisualizer = new THREE.Mesh(armsGeometry, armsMaterial);
 
-        avatar.push(armsVisualizer);
-        avatarArmsArr.push(armsVisualizer);
-        scene.add(armsVisualizer);
+        switch(i) {
+            case i = 0:
+                avatar.leftArm = armVisualizer;
+                break;
+            case i = 1:
+                avatar.rightArm = armVisualizer;
+        }
+
+        scene.add(armVisualizer);
     }
 
-    avatarArmsArr[0].position.x = 13;
-    avatarArmsArr[1].position.x = -13;
-    avatarArmsArr[0].position.y = avatarArmsArr[1].position.y = 15;
-    avatarArmsArr[0].position.z = avatarArmsArr[1].position.z = 0;
-    avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 5;
-    avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 1.60;
+    avatar.rightArm.position.x = 13;
+    avatar.leftArm.position.x = -13;
+    avatar.rightArm.position.y = avatar.leftArm.position.y = -15;
+    avatar.rightArm.position.z = avatar.leftArm.position.z = 0;
+
+
 
 }
 
@@ -118,46 +123,8 @@ var initAvatarBody = function () {
     var bodyMaterial = new THREE.MeshBasicMaterial({wireframe: true});
     var bodyVisualizer = new THREE.Mesh(bodyGeometry, bodyMaterial);
 
-    avatar.push(bodyVisualizer);
+    avatar.body = bodyVisualizer;
     scene.add(bodyVisualizer);
-}
-
-
-var avatarAnimation = function() {
-    if(avatarLegsArr[1].rotation.x === 3.6989999999999936) {
-        avatarLeftRotationValue  = -0.009;
-    } else if(avatarLegsArr[1].rotation.x === 2.5650000000000066) {
-        avatarLeftRotationValue  = 0.009;
-    }
-
-    if(avatarLegsArr[0].rotation.x === 3.6989999999999936) {
-        avatarRightRotationValue = -0.009;
-    } else if(avatarLegsArr[0].rotation.x === 2.5650000000000066) {
-        avatarRightRotationValue = 0.009;
-    }
-
-    avatarLegsArr[1].rotation.x += avatarLeftRotationValue;
-    avatarLegsArr[0].rotation.x += avatarRightRotationValue;
-    avatarArmsArr[0].rotation.x += avatarLeftRotationValue;
-    avatarArmsArr[1].rotation.x += avatarRightRotationValue;
-}
-
-var avatarArmsAnimation = function() { 
-    if(avatarArmsArr[1].rotation.x === 3.6989999999999936) {
-        leftLegRotationValue = -0.009;
-    } else if(avatarArmsArr[1].rotation.x === 2.5650000000000066) {
-        leftLegRotationValue = 0.009;
-    }
-
-    if(avatarArmsArr[0].rotation.x === 3.6989999999999936) {
-        rightLegRotationValue = -0.009;
-    } else if(avatarArmsArr[0].rotation.x === 2.5650000000000066) {
-        rightLegRotationValue = 0.009;
-    }
-    console.log(avatarLegsArr[1].rotation.x)
-    avatarLegsArr[1].rotation.x += leftLegRotationValue;
-    avatarLegsArr[0].rotation.x += rightLegRotationValue;
-
 }
 
 //Landscape
@@ -171,116 +138,81 @@ var initLandscape = function() {
     scene.add(landscapeVisualizer);
 }
 
+//Animation
+var avatarAnimation = function() {
+    if(avatar.rightLeg.rotation.x === 3.6989999999999936) {
+        avatarLeftRotationValue  = -0.009;
+    } else if(avatar.rightLeg.rotation.x === 2.5650000000000066) {
+        avatarLeftRotationValue  = 0.009;
+    }
+
+    if(avatar.leftLeg.rotation.x === 3.6989999999999936) {
+        avatarRightRotationValue = -0.009;
+    } else if(avatar.leftLeg.rotation.x === 2.5650000000000066) {
+        avatarRightRotationValue = 0.009;
+    }
+
+    avatar.rightLeg.rotation.x += avatarLeftRotationValue;
+    avatar.leftLeg.rotation.x += avatarRightRotationValue;
+    avatar.leftArm.rotation.x += avatarLeftRotationValue;
+    avatar.rightArm.rotation.x += avatarRightRotationValue;
+}
+
+var avatarMoveForward = function(avatarPart, delta) {
+    var returnValue;
+
+    if(avatarPart == avatar.leftLeg || avatarPart == avatar.rightLeg) {
+        returnValue = avatarPart.translateZ( -100 * delta );
+    }
+    else if(avatarPart == avatar.leftArm || avatarPart == avatar.rightArm) {
+        returnValue = avatarPart.translateZ( -100 * delta);
+        console.log(avatarPart.translateZ( -100 * delta))
+    }
+    else if(avatarPart == avatar.head || avatarPart == avatar.body) {
+        returnValue = avatarPart.translateZ( -100 * delta );
+    }
+    
+
+    return returnValue;
+}
+
 //Controls
 var updateFcts  = [];
-    updateFcts.push(function(delta, now){
-        for(i in avatar) {
+updateFcts.push(function(delta, now){
+    for(i in avatar) {
         if( keyboard.pressed('left') ){
-            avatar[i].rotation.y += 1;           
+            avatar[i].rotation.y -= 1 * delta;     
         }else if( keyboard.pressed('right') ){
             avatar[i].rotation.y += 1 * delta;
         }
         if( keyboard.pressed('down') ){
-            avatar[i].rotation.x += 1 * delta;       
+            avatar[i].translateZ( 100 * delta );     
         }else if( keyboard.pressed('up') ){
-            avatar[i].position.z -= 1;       
-        }
-        }
-    })
+            avatarMoveForward(avatar[i], delta);
 
-    // only on keydown
-   /* keyboard.domElement.addEventListener('keydown', function(event){
-        if( keyboard.eventMatches(event, 'w') ) mesh.scale.y    /= 2
-        if( keyboard.eventMatches(event, 's') ) mesh.scale.y    *= 2
-    })
-    // only on keyup
-    keyboard.domElement.addEventListener('keyup', function(event){
-        if( keyboard.eventMatches(event, 'a') ) mesh.scale.x    *= 2
-        if( keyboard.eventMatches(event, 'd') ) mesh.scale.x    /= 2
-    })*/
-
-    //////////////////////////////////////////////////////////////////////////////////
-    //      render the scene                        //
-    //////////////////////////////////////////////////////////////////////////////////
-
-/*
-    function render() {
-    
-    requestAnimationFrame(render);
-    //camera.position.x += ( - mouseX - camera.position.x ) * .20;
-    //camera.position.y += ( mouseY - camera.position.y ) * .20;
-    camera.lookAt(scene.position);
-    renderer.render(scene, camera);
-}*/
-
-
-    //////////////////////////////////////////////////////////////////////////////////
-    //      loop runner                         //
-    //////////////////////////////////////////////////////////////////////////////////
-    var lastTimeMsec= null
-    requestAnimationFrame(function animate(nowMsec){
-        // keep looping
-        requestAnimationFrame( animate );
-        // measure time
-        lastTimeMsec    = lastTimeMsec || nowMsec-1000/60
-        var deltaMsec   = Math.min(200, nowMsec - lastTimeMsec)
-        lastTimeMsec    = nowMsec
-        // call each update function
-        updateFcts.forEach(function(updateFn){
-            updateFn(deltaMsec/1000, nowMsec/1000)
-        })
-    })
-
-/*
-document.addEventListener( "keydown", doKeyDown, true);
-document.addEventListener( "keyup", doKeyUp, true);
-
-function doKeyDown(e) {
-
-    for(i in avatar) {
-        if(e.keyCode == "87") {
-            if(avatar[i].position.z > -500) {
-                avatarAnimation();
-                avatar[i].position.z += -4;
-            }
-        }
-        if(e.keyCode == "83") {
-            if(avatar[i].position.z < 500) {
-                avatarAnimation();
-                avatar[i].position.z += 4;
-            }
-        }
-
-        if(e.keyCode == "68") {
-            if(avatar[i].position.x < 500) {
-                avatarAnimation();
-                avatar[i].position.x += 4;
-            }
-        }
-        if(e.keyCode == "65") {
-            if(avatar[i].position.x > -500) { 
-                avatarAnimation();
-                avatar[i].position.x -= 4;
-            }
+            console.log(delta);
         }
     }
+});
 
-    if(e.keyCode == "32") {
-      
-    }  
-}
-
-function doKeyUp(e) {
-    avatarLegsArr[1].rotation.x = avatarLegsArr[0].rotation.x = 3.15;
-    avatarArmsArr[1].rotation.x = avatarArmsArr[0].rotation.x = 1.60;
-}
-*/
-
-init();
-    updateFcts.push(function(){
-        renderer.render( scene, camera );       
+var lastTimeMsec= null
+requestAnimationFrame(function animate(nowMsec){
+    // keep looping
+    requestAnimationFrame( animate );
+    // measure time
+    lastTimeMsec    = lastTimeMsec || nowMsec-1000/60
+    var deltaMsec   = Math.min(200, nowMsec - lastTimeMsec)
+    lastTimeMsec    = nowMsec
+    // call each update function
+    updateFcts.forEach(function(updateFn){
+        updateFn(deltaMsec/1000, nowMsec/1000)
     })
-//render();
+})
 
 
-//if(avatar[0].position.y < -5 && avatar[1].position.y < -5 && avatar[2].position.y < 40 && avatar[3].position.y < 30 && avatar[4].position.y < 30 && avatar[5].position.y < 15){}
+updateFcts.push(function(){
+    renderer.render( scene, camera );       
+});
+init();
+render();
+
