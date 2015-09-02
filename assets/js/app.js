@@ -44,14 +44,25 @@ var avatar = new Object();
 var avatarLeftRotationValue = -0.009;
 var avatarRightRotationValue = 0.009;
 var landscapeVisualizer;
-
+var combinedAvatar;
 
 var initAvatar = function() {
     initAvatarLegs();
     initAvatarHead();
     initAvatarArms();
     initAvatarBody();
+    combineAvatar();
 };
+
+var combineAvatar = function() {
+    combinedAvatar = new THREE.Geometry();
+
+    for(i in avatar) {
+        avatar[i].updateMatrix();
+        combinedAvatar.merge(avatar[i].geometry, avatar[i].matrix);
+    }
+    return combinedAvatar;    
+}
 
 var initAvatarLegs = function() {
 
@@ -179,7 +190,7 @@ var avatarMoveForward = function(avatarPart, delta) {
 //Controls
 var updateFcts  = [];
 updateFcts.push(function(delta, now){
-    for(i in avatar) {
+    /*for(i in avatar) {
         if( keyboard.pressed('left') ){
             avatar[i].rotation.y -= 1 * delta;     
         }else if( keyboard.pressed('right') ){
@@ -192,7 +203,20 @@ updateFcts.push(function(delta, now){
 
             console.log(delta);
         }
-    }
+    }*/
+
+        if( keyboard.pressed('left') ){
+            //avatar[i].rotation.y -= 1 * delta;     
+        }else if( keyboard.pressed('right') ){
+            //avatar[i].rotation.y += 1 * delta;
+        }
+        if( keyboard.pressed('down') ){
+            //avatar[i].translateZ( 100 * delta );     
+        }else if( keyboard.pressed('up') ){
+            //avatarMoveForward(avatar[i], delta);
+            console.log(combinedAvatar);
+            combinedAvatar.translateZ(-100 * delta);
+        }
 });
 
 var lastTimeMsec= null
